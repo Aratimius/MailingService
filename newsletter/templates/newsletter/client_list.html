@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="container">
+    <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
+        <div class="col-lg-6 px-0">
+            <h1 class="display-4 fst-italic">Список клиентов</h1>
+            <p class="lead my-3">Ваша клиентская база</p>
+            <p class="lead mb-0"><a href="{% url 'newsletter:client_create' %}" class="text-body-emphasis fw-bold">Зарегестрировать
+                клиента</a></p>
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        {% for object in object_list %}
+        {% if object.owner == user %}
+        <div class="col-md-6">
+            <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                <div class="col p-4 d-flex flex-column position-static">
+                    <strong class="d-inline-block mb-2 text-primary-emphasis">{{object.email}}</strong>
+                    <h3 class="mb-0">{{object.name_surname}}</h3>
+                    <p class="card-text mb-auto">{{object.comment}}</p>
+                    <div class="row">
+                        <div class="btn-group margin-top:auto ">
+                            <a href="{% url 'newsletter:client_detail' object.pk %}" class="icon-link gap-1 icon-link-hover mx-3">
+                                Подробнее
+                            </a>
+                            <a href="{% url 'newsletter:client_update' object.pk %}" class="icon-link gap-1 icon-link-hover mx-3">
+                                Изменить
+                            </a>
+                            <a href="{% url 'newsletter:client_delete' object.pk %}" class="icon-link gap-1 icon-link-hover mx-3 text-danger">
+                                Удалить
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</main>
+
+{% endblock %}

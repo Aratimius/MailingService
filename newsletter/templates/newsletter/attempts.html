@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<main class="container">
+    <table class="table mt-3">
+        <thead>
+        <tr>
+            <th scope="col">Номер попытки</th>
+            <th scope="col">Тема сообщения</th>
+            <th scope="col">дата начала</th>
+            <th scope="col">дата окончания</th>
+            <th scope="col">время отправки</th>
+            <th scope="col">Номер рассылки</th>
+            <th scope="col">Статус</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for attempt in attempt_list %}
+        {% if attempt.status == 'Успешно' %}
+        <tr class="table-success">
+            {% else %}
+        <tr class="table-danger">
+            {% endif %}
+            <th scope="row">{{attempt.pk}}</th>
+            <td>{{attempt.newsletter.message.letter_theme}}</td>
+            <td>{{attempt.newsletter.start_time}}</td>
+            <td>{{attempt.newsletter.end_time}}</td>
+            <td>{{attempt.date_time}}</td>
+            <td>{{attempt.newsletter.pk}}</td>
+            <td>{{attempt.status}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</main>
+{% endblock %}

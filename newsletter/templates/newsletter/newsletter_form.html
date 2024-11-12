@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<main class="container">
+    <form method="post" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-6">
+                <p>ВНИМАНИЕ!!! Для создания рассылки необходима клиентская база и готовое сообщение для отправки! Если у
+                    вас не зарегистрирован ни один клиент или не создано необходимое сообщение, то перейдите по нужной
+                    ссылке, зарегестрируйте адресата и создайте для него сообщение.</p>
+                <div class="card">
+                    <div class="card-body">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        {% if object %}
+                        <button type="submit" class="btn btn-success">Сохранить</button>
+                        {% else %}
+                        <button type="submit" class="btn btn-success">Создать</button>
+                        {% endif %}
+                        <div class="btn-group">
+                            <a class="btn btn-danger " href="{% url 'newsletter:newsletter_list' %}" role="button">Отмена</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+
+{% endblock %}

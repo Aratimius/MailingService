@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="album py-5 bg-body-tertiary">
+    <div class="container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            <div class="col-lg-9 col-md-6 col-sm-12 mx-auto">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <p class="card-text">Клиенты: <br> {% for client in clients %}
+                            {{client}}; <br>
+                            {% endfor %}</p>
+                        <p class="card-text">Тема письма: {{ object.message }}</p>
+                        <p class="card-text">Статус: {{ object.status }}</p>
+                        <p class="card-text">Дата начала: {{ object.start_time }}</p>
+                        <p class="card-text">Периодичность: {{ object.periodicity }}</p>
+                        <p class="card-text">Пользователь: {{object.owner}}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <a class="btn btn-dark" href="{% url 'newsletter:newsletter_list' %}"
+                                   role="button">Назад</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

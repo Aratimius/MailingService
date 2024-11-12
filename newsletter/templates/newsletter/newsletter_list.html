@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="container">
+    <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
+        <div class="col-lg-6 px-0">
+            <h1 class="display-4 fst-italic">Сервис управления рассылками</h1>
+            <p class="lead my-3">Сервис для быстрого создания, удаления, редактирования, просмотра и отправки
+                рассылок</p>
+            {% if user.is_authenticated %}
+            <p class="lead mb-0"><a href="{% url 'newsletter:newsletter_create' %}" class="text-body-emphasis fw-bold">Создать
+                свою рассылку</a></p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <p>Всего рассылок: {{letters_count}} | Активных рассылок: {{active_letters_count}} | Уникальных клиентов: {{unique_clients_conunt}}
+        <p>
+
+            {% for object in object_list %}
+            {% if object.owner == user or perms.newsletter.can_view_newsletters %}
+        <div class="col-md-6">
+            <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                <div class="col p-4 d-flex flex-column position-static">
+                    <h3 class="mb-0">Тема сообщения: {{object.message}}</h3>
+                    <div class="mb-1 text-body-secondary">Дата начала: {{object.start_time}}</div>
+                    <div class="mb-1 text-body-secondary">Статус: {{object.status}}</div>
+                    <div class="row">
+                        <div class="btn-group margin-top:auto ">
+                            <a href="{% url 'newsletter:newsletter_detail' object.pk %}"
+                               class="icon-link gap-1 icon-link-hover mx-3">
+                                Подробнее
+                            </a>
+                            <a href="{% url 'newsletter:newsletter_update' object.pk %}"
+                               class="icon-link gap-1 icon-link-hover mx-3">
+                                Изменить
+                            </a>
+                            {% if object.owner == user %}
+                            <a href="{% url 'newsletter:newsletter_delete' object.pk %}"
+                               class="icon-link gap-1 icon-link-hover mx-3 text-danger">
+                                Удалить
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <div>
+        <h4 class="fst-italic">Случайные посты</h4>
+        <ul class="list-unstyled">
+            {% for post in random_posts %}
+            <li>
+                <a class="d-flex flex-column flex-lg-row gap-3 align-items-start align-items-lg-center py-3 link-body-emphasis text-decoration-none border-top"
+                   href="{% url 'blog:detail' post.pk %}">
+                    <img src="media/{{ post.preview }}" class="bd-placeholder-img" width="100%" height="96">
+                    <div class="col-lg-8">
+                        <h6 class="mb-0">{{post.title}}</h6>
+                        <small class="text-body-secondary">{{post.creation_date}}</small>
+                    </div>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</main>
+
+{% endblock %}

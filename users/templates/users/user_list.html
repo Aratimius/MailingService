@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<main class="container">
+    <table class="table mt-3">
+        <thead>
+        <tr>
+            <th scope="col">email</th>
+            <th scope="col">last_name</th>
+            <th scope="col">first_name</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for object in object_list %}
+        <tr class="table-primary">
+            <td>{{object.email}}</td>
+            <td>{{object.last_name}}</td>
+            <td>{{object.first_name}}</td>
+            {% if object.is_active %}
+            <td><a href="{% url 'users:block' object.pk %}"
+                   class="icon-link gap-1 icon-link-hover mx-3 text-danger">
+                Блокировать
+            </a></td>
+            {% else %}
+            <td>Заблокирован</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</main>
+{% endblock %}
