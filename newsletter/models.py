@@ -10,7 +10,7 @@ class Client(models.Model):
     email = models.CharField(max_length=100, verbose_name='email', help_text='введите email')
     name_surname = models.CharField(max_length=200, verbose_name='Ф.И.О', help_text='введите Ф.И.О.')
     comment = models.TextField(verbose_name='комментарий', blank=True, null=True)
-
+    is_first = models.PositiveIntegerField(blank=True, null=True)
     owner = models.ForeignKey(User, verbose_name='пользователь', blank=True, null=True, on_delete=models.CASCADE)
 
     class Meta:
@@ -69,6 +69,7 @@ class Newsletter(models.Model):
     message = models.OneToOneField(Message, on_delete=models.CASCADE, primary_key=True, verbose_name='сообщение',
                                    help_text='обязательное поле')
     owner = models.ForeignKey(User, verbose_name='пользователь', blank=True, null=True, on_delete=models.CASCADE)
+    is_first = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
         verbose_name = 'рассылка'

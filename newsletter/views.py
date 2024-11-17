@@ -9,6 +9,7 @@ from django.views.generic import ListView, DetailView, UpdateView, DeleteView, C
 from blog.models import Blog
 from newsletter.forms import NewsletterForm, MessageForm, ClientForm, NewsletterManagerForm
 from newsletter.models import Newsletter, Message, Client, MailingAttempt
+from newsletter.services import get_newsletters_from_cache
 
 
 #  CRUD для рассылок:
@@ -25,7 +26,23 @@ class NewsletterListView(ListView):
         # 3 случайных поста:
         all_posts = list(Blog.objects.filter(publication_sign=True))
         context_data['random_posts'] = sample(all_posts, min(len(all_posts), 3))
+
+        # сортировать по владельцу
+        for object in Newsletter.objects.all():
+            if object.owner == self.request.user:
+                object.is_first = 1
+                object.save()
+            else:
+                object.is_first = 0
+                object.save()
+        object_list = Newsletter.objects.all().order_by('-is_first')
+        context_data['object_list'] = object_list
+
         return context_data
+
+    def get_queryset(self):
+        """Кеширует список рассылок на главной странице"""
+        return get_newsletters_from_cache()
 
 
 class NewsletterDetailView(DetailView):
@@ -108,6 +125,21 @@ class MessageDeleteView(DeleteView):
 # CRUD для клиентов:
 class ClientListView(ListView):
     model = Client
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        for object in Client.objects.all():
+            if object.owner == self.request.user:
+                object.is_first = 1
+                object.save()
+            else:
+                object.is_first = 0
+                object.save()
+
+        object_list = Client.objects.all().order_by('-is_first')
+        context_data['object_list'] = object_list
+        return context_data
+
 
 
 class ClientDetailView(DetailView):
