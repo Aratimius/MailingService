@@ -79,15 +79,3 @@ def start_sheduler():
     if not scheduler.running:
         scheduler.start()
 
-
-def get_newsletters_from_cache():
-    """Получает данные по рассылкам из кэша"""
-
-    if not CASHE_ENABLED:
-        return Newsletter.objects.all()
-    newsletters = cache.get('newsletters_list')
-    if newsletters is not None:
-        return newsletters
-    newsletters = Newsletter.objects.all()
-    cache.set('newsletters_list', newsletters)
-    return newsletters

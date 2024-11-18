@@ -7,14 +7,19 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView, CreateView
 
 from blog.models import Blog
+from blog.services import get_object_from_cashe
 from newsletter.forms import NewsletterForm, MessageForm, ClientForm, NewsletterManagerForm
 from newsletter.models import Newsletter, Message, Client, MailingAttempt
-from newsletter.services import get_newsletters_from_cache
 
 
 #  CRUD для рассылок:
-class NewsletterListView(ListView):
+class NewsletterListView(LoginRequiredMixin, ListView):
     model = Newsletter
+
+    def get_queryset(self):
+        """Кеширует список рассылок на главной странице"""
+        queryset = super().get_queryset()
+        return get_object_from_cashe(queryset)
 
     def get_context_data(self, **kwargs):
         """Передать объекту отчет о рассылках"""
@@ -23,26 +28,17 @@ class NewsletterListView(ListView):
         context_data['letters_count'] = Newsletter.objects.all().count()
         context_data['active_letters_count'] = Newsletter.objects.filter(status='STARTED').count()
         context_data['unique_clients_conunt'] = Client.objects.values_list('email', flat=True).distinct().count()
+
         # 3 случайных поста:
         all_posts = list(Blog.objects.filter(publication_sign=True))
         context_data['random_posts'] = sample(all_posts, min(len(all_posts), 3))
-
-        # сортировать по владельцу
-        for object in Newsletter.objects.all():
-            if object.owner == self.request.user:
-                object.is_first = 1
-                object.save()
-            else:
-                object.is_first = 0
-                object.save()
-        object_list = Newsletter.objects.all().order_by('-is_first')
+        if self.request.user.has_perm('newsletter.can_view_newsletters'): # если пользователь модератор, то он получает другой кверисет
+            object_list = Newsletter.objects.all()
+        else:
+            object_list = Newsletter.objects.filter(owner=self.request.user)
         context_data['object_list'] = object_list
 
         return context_data
-
-    def get_queryset(self):
-        """Кеширует список рассылок на главной странице"""
-        return get_newsletters_from_cache()
 
 
 class NewsletterDetailView(DetailView):
@@ -68,8 +64,14 @@ class NewsletterCreateView(LoginRequiredMixin, CreateView):
         newsletter.save()
         return super().form_valid(form)
 
+    def get_form_kwargs(self):
+        """Получить аргументы формы"""
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
-class NewsletterUpdateView(LoginRequiredMixin, UpdateView):
+
+class NewsletterUpdateView(UpdateView):
     model = Newsletter
     success_url = reverse_lazy('newsletter:newsletter_list')
     form_class = NewsletterForm
@@ -82,6 +84,12 @@ class NewsletterUpdateView(LoginRequiredMixin, UpdateView):
             return NewsletterManagerForm
         raise PermissionDenied
 
+    def get_form_kwargs(self):
+        """Получить аргументы формы"""
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
 
 class NewsletterDeleteView(DeleteView):
     model = Newsletter
@@ -89,8 +97,14 @@ class NewsletterDeleteView(DeleteView):
 
 
 # CRUD для сообщений:
-class MessageListView(ListView):
+class MessageListView(LoginRequiredMixin, ListView):
     model = Message
+
+    def get_queryset(self):
+        """Пользователь может видеть только свои сообщения"""
+        queryset = super().get_queryset()
+        queryset = queryset.filter(owner=self.request.user)
+        return queryset
 
 
 class MessageDetailView(DetailView):
@@ -123,23 +137,14 @@ class MessageDeleteView(DeleteView):
 
 
 # CRUD для клиентов:
-class ClientListView(ListView):
+class ClientListView(LoginRequiredMixin, ListView):
     model = Client
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context_data = super().get_context_data(**kwargs)
-        for object in Client.objects.all():
-            if object.owner == self.request.user:
-                object.is_first = 1
-                object.save()
-            else:
-                object.is_first = 0
-                object.save()
-
-        object_list = Client.objects.all().order_by('-is_first')
-        context_data['object_list'] = object_list
-        return context_data
-
+    def get_queryset(self):
+        """Пользователь может видеть только своих клиентов"""
+        queryset = super().get_queryset()
+        queryset = queryset.filter(owner=self.request.user)
+        return queryset
 
 
 class ClientDetailView(DetailView):

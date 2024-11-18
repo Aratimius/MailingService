@@ -14,6 +14,14 @@ class StyleFormMixin:
 
 
 class NewsletterForm(StyleFormMixin, ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+        #  Оставить в выборке только свои сообщения и своих пользователей
+        self.fields['client'].queryset = Client.objects.filter(owner=user)
+        self.fields['message'].queryset = Message.objects.filter(owner=user)
+
     class Meta:
         model = Newsletter
         fields = ('start_time', 'end_time', 'periodicity', 'status', 'client', 'message',)
