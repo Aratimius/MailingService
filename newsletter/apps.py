@@ -8,7 +8,7 @@ class NewsletterConfig(AppConfig):
     name = 'newsletter'
 
 #  РАСКОММЕНТИРОВАТЬ КОД ДЛЯ АВТОМАТИЗАЦИИ ОТПРАВКИ РАССЫЛОК -> ЗАПУСТИТЬ СЕРВЕР
-    def ready(self):
-        from newsletter.services import start_sheduler
-        sleep(2)
-        start_sheduler()
+#     def ready(self):
+#         from newsletter.services import start_sheduler
+#         sleep(2)
+#         start_sheduler()

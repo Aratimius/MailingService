@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView, CreateView
 
 from blog.models import Blog
-from blog.services import get_object_from_cashe
+from newsletter.services import get_newsletter_from_cashe
 from newsletter.forms import NewsletterForm, MessageForm, ClientForm, NewsletterManagerForm
 from newsletter.models import Newsletter, Message, Client, MailingAttempt
 
@@ -19,7 +19,8 @@ class NewsletterListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         """Кеширует список рассылок на главной странице"""
         queryset = super().get_queryset()
-        return get_object_from_cashe(queryset)
+        queryset = queryset.filter(owner=self.request.user)
+        return get_newsletter_from_cashe(queryset)
 
     def get_context_data(self, **kwargs):
         """Передать объекту отчет о рассылках"""
@@ -33,10 +34,7 @@ class NewsletterListView(LoginRequiredMixin, ListView):
         all_posts = list(Blog.objects.filter(publication_sign=True))
         context_data['random_posts'] = sample(all_posts, min(len(all_posts), 3))
         if self.request.user.has_perm('newsletter.can_view_newsletters'): # если пользователь модератор, то он получает другой кверисет
-            object_list = Newsletter.objects.all()
-        else:
-            object_list = Newsletter.objects.filter(owner=self.request.user)
-        context_data['object_list'] = object_list
+            context_data['object_list'] = Newsletter.objects.all()
 
         return context_data
 

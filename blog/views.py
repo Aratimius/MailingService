@@ -6,7 +6,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView, D
 
 from blog.forms import BlogForm
 from blog.models import Blog
-from blog.services import get_object_from_cashe
+from blog.services import get_blog_from_cashe
 
 
 class BlogListView(LoginRequiredMixin, ListView):
@@ -16,7 +16,7 @@ class BlogListView(LoginRequiredMixin, ListView):
         """Фильтрация по опубликованным статьсям"""
         queryset = super().get_queryset()
         queryset = queryset.filter(publication_sign=True)
-        return get_object_from_cashe(queryset)
+        return get_blog_from_cashe(queryset)
 
 
 class BlogCreateView(CreateView):
